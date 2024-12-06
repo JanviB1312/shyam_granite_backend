@@ -16,21 +16,32 @@ class OrderController {
       customerEmail,
       customerPhone,
       customerAddress,
+      customerState,
+      customerCity,
+      customerCountry,
       order_amount,
       products,
     } = req.body;
 
-    const serviceResponse = await orderService.saveOrder(orderId,customerId,customerName,customerEmail,customerPhone,customerAddress,order_amount,products);
+    const serviceResponse = await orderService.saveOrder(
+      orderId,customerId,customerName,customerEmail,customerPhone,customerAddress,customerState,
+      customerCity,customerCountry, order_amount,products);
 
     return handleServiceResponse(serviceResponse, res);
   };
- /*  public getCashfreeOrder: RequestHandler = async (req: Request, res: Response) => {
+  public getCashfreeOrder: RequestHandler = async (req: Request, res: Response) => {
     const { orderId } = req.params;
 
     const serviceResponse = await orderService.fetchCashfreeOrder(orderId);
 
     return handleServiceResponse(serviceResponse, res);
-  }; */
+  };
+
+  public getDiscount: RequestHandler = async (req: Request, res: Response) => {
+    const { coupon } = req.params;
+    const serviceResponse = await orderService.getDiscount(coupon);
+    return handleServiceResponse(serviceResponse, res);
+  };
 }
 
 export const orderController = new OrderController();

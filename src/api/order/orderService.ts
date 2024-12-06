@@ -3,6 +3,7 @@ import { OrderRepository } from "@/api/order/orderRepository";
 import { ServiceResponse } from "@/common/models/serviceResponse";
 import { logger } from "@/server";
 import { Order, OrderWithProducts,OrderAddSchema } from "./orderModel";
+import { Cashfree } from "cashfree-pg"; 
 
 
 class OrderService {
@@ -27,15 +28,15 @@ class OrderService {
     }
   }
 
-  async saveOrder(orderId:string,customerId:string,customerName:string,customerEmail:string,customerPhone:number,customerAddress:string,order_amount:number,
+  async saveOrder(orderId:string,customerId:string,customerName:string,customerEmail:string,customerPhone:number,customerAddress:string,
+    customerState:string,
+      customerCity:string,
+      customerCountry:string,order_amount:number,
     products:Array<any>): Promise<ServiceResponse<null>> {
     try {
-      await this.orderRepository.saveOrder(orderId,
-        customerId,
-        customerName,
-        customerEmail,
-        customerPhone,
-        customerAddress,
+      await this.orderRepository.saveOrder(orderId,customerId,customerName,customerEmail,customerPhone,customerAddress,customerState,
+        customerCity,
+        customerCountry,
         order_amount,
         products,);
       return ServiceResponse.success<null>("Order saved successfully", null);
@@ -50,30 +51,52 @@ class OrderService {
     }
   }
 
-/*   async fetchCashfreeOrder(orderId: string): Promise<ServiceResponse<any>> {
+  async fetchCashfreeOrder(orderId: string): Promise<ServiceResponse<any>> {
     try {
-      Cashfree.XClientId = "TEST430329ae80e0f32e41a393d78b923034";
-      Cashfree.XClientSecret = "TESTaf195616268bd6202eeb3bf8dc458956e7192a85";
-      Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
-      
-      Cashfree.PGOrderFetchPayments("2023-08-01", "order_1733212830791").then((response) => {
-          console.log('Order fetched successfully:', response.data);
-      }).catch((error) => {
-          console.error('Error:', error.response.data.message);
-      });
-      console.log("Response",response);
-      return ServiceResponse.success<any>("Cashfree order fetched successfully", response);
+      const response = await fetch(
+        `https://sandbox.cashfree.com/pg/orders/${orderId}`,
+        {
+          headers: {
+            "x-client-id": `${process.env.CASHFREE_APP_ID}`,
+            "x-client-secret":`${process.env.CASHFREE_APP_ID}`,
+            Accept: "application/json",
+            "x-api-version": "2023-08-01",
+          },
+        }
+      );
+    
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Parsed response data:", data);
+  
+      return ServiceResponse.success<any>("Cashfree order fetched successfully", data);
     } catch (error) {
-      const errorMessage = `Error occurred while fetching Cashfree order: ${error}`;
-      logger.error(errorMessage);
-
+      console.error("Error fetching order:", error);
       return ServiceResponse.failure(
         "An error occurred while fetching the Cashfree order",
         null,
         StatusCodes.INTERNAL_SERVER_ERROR
       );
     }
-  } */
+  }
+
+  async getDiscount(coupon : string):Promise<ServiceResponse<any>>{
+    try {
+      const response = await this.orderRepository.getDiscount(coupon);
+      return ServiceResponse.success<OrderWithProducts[]>("Your discount percentage-", response);
+    } catch (e) {
+      const errorMessage = `Error occurred while fetching discount,: ${e}`;
+      logger.error(errorMessage);
+      return ServiceResponse.failure(
+        "An error occurred while fetching discount",
+        null,
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+  
 }
 
 export const orderService = new OrderService();

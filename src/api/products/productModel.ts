@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 
 export type Product = z.infer<typeof ProductSchema>;
 export const ProductSchema = z.object({
@@ -8,6 +8,7 @@ export const ProductSchema = z.object({
   description: z.string(),
   stock_quantity:z.number(),
   image:z.string(),
+  features:z.array(z.string()),
   created_at: z.string(),
   updated_at: z.string(),
   imageBase64:z.string().optional()

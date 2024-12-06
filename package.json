@@ -21,6 +21,7 @@
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.0.0",
     "bcrypt": "^5.1.1",
+    "cashfree-pg": "^4.3.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "envalid": "^8.0.0",

@@ -5,6 +5,7 @@ import { createApiBody, createApiResponse } from "@/api-docs/openAPIResponseBuil
 import { productController } from "./productController";
 import { ProductAddSchema, ProductSchema } from "./productModel";
 import { upload } from "@/common/middleware/uploadMiddleware";
+import { verifyToken } from "@/common/middleware/jwtVerification";
 
 export const productRegistry = new OpenAPIRegistry();
 export const productRouter: Router = express.Router();
@@ -28,5 +29,36 @@ productRegistry.registerPath({
   responses: createApiResponse(z.object({ token: z.string() }), "Success"),
 });
 
-productRouter.post("/add", upload.single("image"), productController.addProduct);
+productRouter.post("/add", verifyToken, upload.single("image"), productController.addProduct);
+
+productRegistry.registerPath({
+  method: "post",
+  path: "/products/edit",
+  tags: ["Products"],
+  requestBody: createApiBody(
+    ProductSchema.extend({
+      features: z.array(z.string()).optional(),
+    })
+  ),
+  responses: createApiResponse(z.object({ message: z.string() }), "Success"),
+});
+
+productRouter.post(
+  "/edit",
+  verifyToken,
+  upload.single("image"),
+  productController.editProduct
+);
+
+
+productRegistry.registerPath({
+  method: "get",
+  path: "/products/:id",
+  tags: ["Products"],
+  responses: createApiResponse(ProductSchema, "Success"),
+});
+
+productRouter.get("/:id", productController.getProductById);
+
+
 

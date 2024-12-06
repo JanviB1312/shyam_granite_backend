@@ -10,6 +10,9 @@ export const OrderSchema = z.object({
   customer_name: z.string(),
   customer_email: z.string(),
   customer_phone: z.string(),
+  customer_state:z.string(),
+  customer_country:z.string(),
+  customer_city:z.string(),
   order_amount: z.number(),
   created_at: z.string(),
   updated_at: z.string(),
@@ -32,6 +35,13 @@ export const OrderAddSchema = z.object({
   customerEmail: z.string(),
   customerPhone: z.number(),
   customerAddress:z.string(),
+  customerState:z.string(),
+  customerCountry:z.string(),
+  customerCity:z.string(),
   order_amount: z.number(),
   products: z.array(ProductSchema),
+});
+
+export const GetDiscountSchema = z.object({
+ coupon:z.string()
 });
